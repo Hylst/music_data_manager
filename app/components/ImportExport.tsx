@@ -1,154 +1,33 @@
+"use client"
+
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-
-interface UserPreferences {
-  apiKeys: {
-    starryAI?: string
-    openAI?: string
-    stabilityAI?: string
-    midjourney?: string
-  }
-  keywords: string[]
-  displayMode: "light" | "dark" | "system"
-  cleaningOptions: {
-    removeExtension: boolean
-    removeVersion: boolean
-    removeCommonWords: boolean
-    customWords: string[]
-  }
-}
+import { Download, Upload } from "lucide-react"
 
 interface ImportExportProps {
   processedFiles: string[]
   setProcessedFiles: (files: string[]) => void
 }
 
-const presetKeywords = [
-  "abstract",
-  "acoustic",
-  "ambient",
-  "analog",
-  "artistic",
-  "atmospheric",
-  "avant-garde",
-  "baroque",
-  "black and white",
-  "blues",
-  "cinematic",
-  "classical",
-  "colorful",
-  "contemporary",
-  "cosmic",
-  "dark",
-  "digital",
-  "dramatic",
-  "dreamy",
-  "electronic",
-  "energetic",
-  "experimental",
-  "fantasy",
-  "folk",
-  "futuristic",
-  "geometric",
-  "glitch",
-  "gothic",
-  "grunge",
-  "hip-hop",
-  "industrial",
-  "jazz",
-  "landscape",
-  "light",
-  "liquid",
-  "magical",
-  "medieval",
-  "melancholic",
-  "metallic",
-  "minimal",
-  "modern",
-  "moody",
-  "mystical",
-  "natural",
-  "neon",
-  "nostalgic",
-  "organic",
-  "oriental",
-  "painterly",
-  "pastel",
-  "photographic",
-  "pop",
-  "portrait",
-  "psychedelic",
-  "punk",
-  "raw",
-  "realistic",
-  "retro",
-
-  "rock",
-  "romantic",
-  "rustic",
-  "sci-fi",
-  "simple",
-  "smooth",
-  "space",
-  "spiritual",
-  "street",
-  "surreal",
-  "synthetic",
-  "technical",
-  "textured",
-  "traditional",
-  "tribal",
-  "tropical",
-  "urban",
-  "vintage",
-  "vivid",
-  "warm",
-  "watercolor",
-  "wild",
-  "zen",
-]
-
 export default function ImportExport({ processedFiles, setProcessedFiles }: ImportExportProps) {
   const [importData, setImportData] = useState("")
   const [error, setError] = useState<string | null>(null)
 
-  const loadPreferences = (): UserPreferences => {
-    const stored = localStorage.getItem("userPreferences")
-    return stored
-      ? JSON.parse(stored)
-      : {
-          apiKeys: {},
-          keywords: [],
-          displayMode: "system",
-          cleaningOptions: {
-            removeExtension: true,
-            removeVersion: true,
-            removeCommonWords: true,
-            customWords: [],
-          },
-        }
-  }
-
-  const savePreferences = (prefs: UserPreferences) => {
-    localStorage.setItem("userPreferences", JSON.stringify(prefs))
-  }
-
   const handleExport = () => {
     try {
-      const prefs = loadPreferences()
       const exportData = {
-        preferences: prefs,
         processedFiles,
-        presetKeywords,
+        timestamp: new Date().toISOString(),
+        version: "1.0", // You can update this version number as needed
       }
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = "ai-album-art-preferences.json"
+      a.download = "musicmaster-export.json"
       a.click()
       URL.revokeObjectURL(url)
       setError(null)
@@ -160,15 +39,14 @@ export default function ImportExport({ processedFiles, setProcessedFiles }: Impo
   const handleImport = () => {
     try {
       const importedData = JSON.parse(importData)
-      if (importedData.preferences) {
-        savePreferences(importedData.preferences)
-      }
       if (Array.isArray(importedData.processedFiles)) {
         setProcessedFiles(importedData.processedFiles)
+        setError(null)
+        setImportData("")
+        alert("Import réussi!")
+      } else {
+        throw new Error("Format de données invalide")
       }
-      setError(null)
-      setImportData("")
-      alert("Import réussi!")
     } catch (err) {
       setError("Erreur lors de l'import. Vérifiez le format du fichier.")
     }
@@ -177,15 +55,16 @@ export default function ImportExport({ processedFiles, setProcessedFiles }: Impo
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Import / Export des préférences</CardTitle>
+        <CardTitle>Import / Export</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Button onClick={handleExport} className="w-full">
-            Exporter les préférences
+            <Download className="mr-2 h-4 w-4" />
+            Exporter les données
           </Button>
           <p className="text-sm text-muted-foreground">
-            Exporte vos clés API, mots-clés personnalisés, et autres préférences
+            Exporte la liste des fichiers traités et autres données pertinentes
           </p>
         </div>
 
@@ -197,6 +76,7 @@ export default function ImportExport({ processedFiles, setProcessedFiles }: Impo
             className="min-h-[200px]"
           />
           <Button onClick={handleImport} className="w-full">
+            <Upload className="mr-2 h-4 w-4" />
             Importer
           </Button>
         </div>

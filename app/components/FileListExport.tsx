@@ -1,3 +1,6 @@
+"use client"
+
+import { useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
@@ -8,7 +11,7 @@ interface FileListExportProps {
 }
 
 export default function FileListExport({ files, cleanedNames }: FileListExportProps) {
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     const fileList = files.map((file, index) => ({
       originalName: file.name,
       cleanedName: cleanedNames[index] || file.name,
@@ -24,7 +27,7 @@ export default function FileListExport({ files, cleanedNames }: FileListExportPr
     a.download = "file-list.json"
     a.click()
     URL.revokeObjectURL(url)
-  }
+  }, [files, cleanedNames])
 
   return (
     <Card>

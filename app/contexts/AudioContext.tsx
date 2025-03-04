@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useRef, useReducer } from "react"
+import { createContext, useContext, useRef, useReducer, useMemo } from "react"
 
 interface AudioState {
   currentTrackId: string | null
@@ -63,7 +63,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(audioReducer, initialState)
   const audioRef = useRef<HTMLAudioElement>(null)
 
-  return <AudioContext.Provider value={{ state, dispatch, audioRef }}>{children}</AudioContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      state,
+      dispatch,
+      audioRef,
+    }),
+    [state],
+  )
+
+  return <AudioContext.Provider value={contextValue}>{children}</AudioContext.Provider>
 }
 
 export function useAudio() {

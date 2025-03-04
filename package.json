@@ -60,7 +60,9 @@
     "zod": "^3.24.1",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "music-metadata-browser": "latest"
+    "music-metadata-browser": "latest",
+    "browser-id3-writer": "latest",
+    "jszip": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
